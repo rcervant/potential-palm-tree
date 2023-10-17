@@ -70,6 +70,7 @@ export default function Splitter() {
           {fileData.map((file, index) => (
             <div key={index}>
               <p>{file.content}</p>
+              <br />
             </div>
           ))}
         </div>
