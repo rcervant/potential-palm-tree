@@ -1,8 +1,8 @@
 "use client";
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import Textarea from "./Textarea";
 import Button from "./Button";
-import H2 from './H2';
+import H2 from "./H2";
 
 const SPLIT_LENGTH = 3700;
 const BOILERPLATE_LENGTH = 300;
@@ -22,11 +22,19 @@ export default function Splitter() {
       const currText = prompt.substring(currPartStartIndex, currPartEndIndex);
 
       const lastChunk = `This is the last part. [START PART ${currPart}/${partsNeeded}]\n${currText}\n[END PART ${currPart}/${partsNeeded}]\nALL PARTS SENT. Now you can process the request.`;
-
-      const firstChunks = `Do not answer yet. This is just another part of the text I want to send you. Just receive and acknowledge as "Part ${currPart}/${partsNeeded} received" and wait for the next part.\n[START PART ${currPart}/${partsNeeded}]\n${currText}\n[END PART ${currPart}/${partsNeeded}]\nRemember not answering yet. Just acknowledge you received this part with the message "Part ${currPart}/${partsNeeded} received" and wait for the next part.\n\n`;
+      const middleChunks = `Do not answer yet. This is just another part of the text I want to send you. Just receive and acknowledge as "Part ${currPart}/${partsNeeded} received" and wait for the next part.\n[START PART ${currPart}/${partsNeeded}]\n${currText}\n[END PART ${currPart}/${partsNeeded}]\nRemember no answering yet. Just acknowledge you received this part with the message "Part ${currPart}/${partsNeeded} received" and wait for the next part.\n\n`;
+      const firstChunk = `Do not answer yet. This is the first part of the text I want to send you. Just receive and acknowledge as "Part ${currPart}/${partsNeeded} received" and wait for the next part.\n[START PART ${currPart}/${partsNeeded}]\n${currText}\n[END PART ${currPart}/${partsNeeded}]\nRemember no answering yet. Just acknowledge you received this part with the message "Part ${currPart}/${partsNeeded} received" and wait for the next part.\n\n`;
 
       const isLastChunk = currPart === partsNeeded;
-      const content = isLastChunk ? lastChunk : firstChunks;
+
+      if (currPart === 1 && !isLastChunk) {
+        outputFileData.push({
+          content: firstChunk,
+        });
+        continue;
+      }
+
+      const content = isLastChunk ? lastChunk : middleChunks;
 
       outputFileData.push({
         content,
@@ -57,7 +65,10 @@ export default function Splitter() {
             <Textarea
               id="prompt"
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={(e: { target: { value: SetStateAction<string> } }) =>
+                setPrompt(e.target.value)
+              }
+              className={undefined}
             />
           </div>
           <div>
@@ -65,7 +76,7 @@ export default function Splitter() {
           </div>
           <Button type="submit">Generate Prompt Chunks</Button>
         </form>
-        <H2>Copy these chunks into gpt:</H2>
+        <H2 className={undefined}>Copy these chunks into gpt:</H2>
         <div>
           {fileData.map((file, index) => (
             <div key={index}>
